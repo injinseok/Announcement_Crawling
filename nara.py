@@ -12,6 +12,7 @@ from openpyxl import Workbook
 from time import sleep
 from datetime import datetime
 from urllib import parse
+from openpyxl.styles import *
 
 #함수
 def keyword(val):
@@ -128,23 +129,40 @@ for k in (range(len(keywords))) : # 키워드 반복
         
         #셀레니움 요소 찾기
         driver.implicitly_wait(15)
-        driver.find_element(By.XPATH, '/html/body/ul/li/strong/a').click() # 검색된 사이트 클릭
+        driver.find_elements(By.XPATH, '/html/body/ul/li/strong/a')[0].click() # 검색된 사이트 클릭
         driver.implicitly_wait(15)
         driver.switch_to.frame('bodyFrame')
         #본 페이지에서 iframe으로 전환
         
         try :
-            driver.find_element(By.XPATH, '//*[@id="epDialogBtns"]/a').click()
+            driver.implicitly_wait(15)
+            driver.find_element(By.CSS_SELECTOR, 'a.btn_mdl').click()
         except :
             pass
         #팝업창 닫기
 
         exNum = j + 2
         ex_cell_li = []
-        ex_cell_li.append(str(driver.find_elements(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[4]/td[1]/div/span')[0].text))
-        ex_cell_li.append(str(driver.find_elements(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[2]/td[1]/div')[2].text))
-        ex_cell_li.append(str(driver.find_elements(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[2]/td[1]/div')[3].text))
-        ex_cell_li.append(str(driver.find_elements(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[3]/td/div')[0].text))
+        driver.implicitly_wait(15)
+
+        # 요소가 있는지 확인하여 예외처리
+        try :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[4]/td[1]/div/span').text)) # 공고 기관
+        except :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="inForm"]/div/table/tbody/tr[4]/td[1]/div/a/span').text)) # 공고기관
+        try :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[2]/td[1]/div').text)) # 입찰 일시
+        except :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="inForm"]/div/table/tbody/tr[2]/td[1]/div').text)) # 입찰 일시
+        try :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[2]/td[1]/div').text)) # 사업 금액
+        except :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="inForm"]/div/table/tbody/tr[1]/td[1]/div').text)) # 사업 금액
+        try :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="container"]/div/table/tbody/tr[3]/td/div').text)) # 공고 명
+        except :
+            ex_cell_li.append(str(driver.find_element(By.XPATH, '//*[@id="inForm"]/div/table/tbody/tr[3]/td/div').text)) # 공고 명
+
         ws[f'B{exNum}'], ws[f'C{exNum}'], ws[f'D{exNum}'], ws[f'E{exNum}'] = ex_cell_li[0], ex_cell_li[1], ex_cell_li[2], ex_cell_li[3]
 
         #공고기관
